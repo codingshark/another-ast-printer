@@ -16,32 +16,9 @@ using namespace clang::tooling;
 using namespace llvm;
 using namespace clang;
 
-class AnotherAstPrinter: public ASTConsumer
-{
-	public:
-	void HandleTranslationUnit(ASTContext &Context) override
-	{//traverse from root
-		TranslationUnitDecl *D = Context.getTranslationUnitDecl();
-		//D->print(llvm::outs());
-		
-		another_printer::DeclPrinter Printer(llvm::outs(), D->getASTContext().getPrintingPolicy(), false, false, false, false, false);
-		Printer.Visit(D);
-	}
-};
-
-class AnotherAstPrinterAction : public clang::ASTFrontendAction
-{
-	public:
-		virtual clang::ASTConsumer *CreateASTConsumer(clang::CompilerInstance &Compiler, llvm::StringRef InFile)
-		{
-			llvm::outs()<<"Print file:\n"<<InFile.str()<<"\n";
-			return new AnotherAstPrinter();
-		}
-};
-
 // Apply a custom category to all command-line options so that they are the
 // only ones displayed.
-static llvm::cl::OptionCategory AnotherAstPrinterCategory("another-ast-printer options");
+static llvm::cl::OptionCategory AnotherASTPrinterCategory("another-ast-printer options");
 
 // CommonOptionsParser declares HelpMessage with a description of the common
 // command-line options related to the compilation database and input files.
@@ -49,12 +26,91 @@ static llvm::cl::OptionCategory AnotherAstPrinterCategory("another-ast-printer o
 static cl::extrahelp CommonHelp(CommonOptionsParser::HelpMessage);
 
 // A help message for this specific tool can be added afterwards.
-static cl::extrahelp MoreHelp("\nMore help text...");
+static cl::extrahelp MoreHelp("\nUsage:\n\tanother-ast-printer -d -s -o -e file.cpp --");
+
+static cl::opt<bool> ShowDecl("d", cl::desc("Show declaration types (Decl) "), cl::cat(AnotherASTPrinterCategory));
+//static cl::opt<bool> ShowType("t", cl::desc("Show declaration types (Decl) "), cl::cat(AnotherASTPrinterCategory));//TODO
+static cl::opt<bool> ShowStmt("s", cl::desc("Show statement types (Stmt) "), cl::cat(AnotherASTPrinterCategory));
+static cl::opt<bool> ShowOMP("o", cl::desc("Show OpenMP types (OMP) "), cl::cat(AnotherASTPrinterCategory));
+static cl::opt<bool> ShowExpr("e", cl::desc("Show expression types (Expr) "), cl::cat(AnotherASTPrinterCategory));
+
+class AnotherAstPrinter: public ASTConsumer
+{
+	public:
+	AnotherAstPrinter(bool flag_show_decl,
+//				bool flag_show_type,//TODO
+				bool flag_show_stmt,
+				bool flag_show_omp,
+				bool flag_show_expr):
+	m_show_decl(flag_show_decl),
+	m_show_type(false),//TODO
+	m_show_stmt(flag_show_stmt),
+	m_show_omp(flag_show_omp),
+	m_show_expr(flag_show_expr){}
+	
+	void HandleTranslationUnit(ASTContext &Context) override
+	{//traverse from root
+		TranslationUnitDecl *D = Context.getTranslationUnitDecl();
+		//D->print(llvm::outs());
+		
+		another_printer::DeclPrinter Printer(llvm::outs(),
+			D->getASTContext().getPrintingPolicy(),
+			!m_show_decl,
+			!m_show_type,
+			!m_show_stmt,
+			!m_show_omp,
+			!m_show_expr);
+		Printer.Visit(D);
+	}
+	private:
+	bool m_show_decl;
+	bool m_show_type;
+	bool m_show_stmt;
+	bool m_show_omp;
+	bool m_show_expr;
+};
+
+class AnotherAstPrinterAction : public clang::ASTFrontendAction
+{
+	public:
+		virtual clang::ASTConsumer *CreateASTConsumer(clang::CompilerInstance &Compiler, llvm::StringRef InFile)
+		{
+			llvm::outs()<<"Print file:\n"<<InFile.str()<<"\n\n";
+			return new AnotherAstPrinter(ShowDecl, ShowStmt, ShowOMP, ShowExpr);
+		}
+};
 
 int main(int argc, const char **argv)
 {
-	CommonOptionsParser OptionsParser(argc, argv, AnotherAstPrinterCategory);
+	CommonOptionsParser OptionsParser(argc, argv, AnotherASTPrinterCategory);
 	ClangTool Tool(OptionsParser.getCompilations(), OptionsParser.getSourcePathList());
+
+	if(ShowDecl)
+	{
+		llvm::outs()<<"Decl ";
+	}
+	
+//	if(ShowType)
+//	{
+//		llvm::outs()<<"ShowType ";
+//	}
+	
+	if(ShowStmt)
+	{
+		llvm::outs()<<"Stmt ";
+	}
+	
+	if(ShowOMP)
+	{
+		llvm::outs()<<"OMP ";
+	}
+	
+	if(ShowExpr)
+	{
+		llvm::outs()<<"Expr ";
+	}
+	llvm::outs()<<"\n";
+	
 	return Tool.run(newFrontendActionFactory<AnotherAstPrinterAction>().get());
 }
 

@@ -1,5 +1,18 @@
 https://github.com/codingshark/another-ast-printer.git
 
+Intro:
+Printer of llvm-clang AST. This printer prints AST nodes type, which could help new users understand llvm-clang AST.
+When a new user comes to llvm-clang, it may be difficult for the new user to find the information him/her interested in from the complex AST. This program prints C/C++ source code from AST together with the type information of the AST node such that the user could decide the AST node type which contains the information him/her interested in. The structure of AST is more clear with C/C++ source code and AST node type showing together.
+
+Maintenance:
+The current version is based on clang version 3.6.0. The following files should be updated accordingly, if new version of clang is released:
+DeclPrinter
+StmtPrinter
+TypePrinter
+
+All of DeclPrinter, StmtPrinter and TypePrinter are modified from the classes of the same name of llvm-clang.
+
+Build:
 1.
 clone this project to
 clang-llvm/llvm/tools/clang/tools/extra/
@@ -12,4 +25,7 @@ $ninja another-ast-printer
 4.
 find the executable at
 clang-llvm/build/bin
+5.
+Usage:
+$another-ast-printer file.c --
 
