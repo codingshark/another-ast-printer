@@ -1,0 +1,15 @@
+https://github.com/codingshark/another-ast-printer.git
+
+1.
+clone this project to
+clang-llvm/llvm/tools/clang/tools/extra/
+2.
+add the following line to clang-llvm/llvm/tools/clang/tools/extra/CMakeLists.txt
+add_subdirectory(another-ast-printer)
+3.
+run
+$ninja another-ast-printer
+4.
+find the executable at
+clang-llvm/build/bin
+
