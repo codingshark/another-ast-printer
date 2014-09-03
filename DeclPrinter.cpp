@@ -15,64 +15,6 @@
 #include "DeclPrinter.h"
 #include "StmtPrinter.h"
 
-/*
-void Decl::print(raw_ostream &Out, unsigned Indentation,
-                 bool PrintInstantiation) const {
-  print(Out, getASTContext().getPrintingPolicy(), Indentation, PrintInstantiation);
-}
-
-void Decl::print(raw_ostream &Out, const another_printer::PrintingPolicy &Policy,
-                 unsigned Indentation, bool PrintInstantiation) const {
-  DeclPrinter Printer(Out, Policy, Indentation, PrintInstantiation);
-  Printer.Visit(const_cast<Decl*>(this));
-}
-
-void Decl::printGroup(Decl** Begin, unsigned NumDecls,
-                      raw_ostream &Out, const another_printer::PrintingPolicy &Policy,
-                      unsigned Indentation) {
-  if (NumDecls == 1) {
-    (*Begin)->print(Out, Policy, Indentation);
-    return;
-  }
-
-  Decl** End = Begin + NumDecls;
-  TagDecl* TD = dyn_cast<TagDecl>(*Begin);
-  if (TD)
-    ++Begin;
-
-  another_printer::PrintingPolicy SubPolicy(Policy);
-  if (TD && TD->isCompleteDefinition()) {
-    TD->print(Out, Policy, Indentation);
-    Out << " ";
-    SubPolicy.SuppressTag = true;
-  }
-
-  bool isFirst = true;
-  for ( ; Begin != End; ++Begin) {
-    if (isFirst) {
-      SubPolicy.SuppressSpecifiers = false;
-      isFirst = false;
-    } else {
-      if (!isFirst) Out << ", ";
-      SubPolicy.SuppressSpecifiers = true;
-    }
-
-    (*Begin)->print(Out, SubPolicy, Indentation);
-  }
-}
-
-LLVM_DUMP_METHOD void DeclContext::dumpDeclContext() const {
-  // Get the translation unit
-  const DeclContext *DC = this;
-  while (!DC->isTranslationUnit())
-    DC = DC->getParent();
-  
-  ASTContext &Ctx = cast<TranslationUnitDecl>(DC)->getASTContext();
-  DeclPrinter Printer(llvm::errs(), Ctx.getPrintingPolicy(), 0);
-  Printer.VisitDeclContext(const_cast<DeclContext *>(this), //Indent=
-  false);
-}*/
-
 namespace another_printer{
 
 
@@ -108,6 +50,50 @@ static QualType getDeclType(Decl* D) {
   return QualType();
 }
 
+
+void DeclPrinter::printGroup(Decl** Begin, unsigned NumDecls,
+                       raw_ostream &Out, const PrintingPolicy &Policy,
+                       unsigned Indentation) {
+   if (NumDecls == 1) {
+//     (*Begin)->print(Out, Policy, Indentation);
+	PrintDecl(*Begin, Out, Policy, Indentation);
+     return;
+   }
+ 
+   Decl** End = Begin + NumDecls;
+   TagDecl* TD = dyn_cast<TagDecl>(*Begin);
+   if (TD)
+     ++Begin; 
+   PrintingPolicy SubPolicy(Policy);
+   if (TD && TD->isCompleteDefinition()) {
+//     TD->print(Out, Policy, Indentation);
+     PrintDecl(TD, Out, Policy, Indentation);
+     Out << " ";
+     SubPolicy.SuppressTag = true;
+   }
+   bool isFirst = true;
+   for ( ; Begin != End; ++Begin) {
+     if (isFirst) {
+       SubPolicy.SuppressSpecifiers = false;
+       isFirst = false;
+     } else {
+       if (!isFirst) Out << ", ";
+       SubPolicy.SuppressSpecifiers = true;
+     }
+//     (*Begin)->print(Out, SubPolicy, Indentation);
+     PrintDecl((*Begin), Out, SubPolicy, Indentation);
+   }
+ }
+
+void DeclPrinter::PrintDecl(const Decl* p_decl,
+    				raw_ostream & an_out,
+    				const another_printer::PrintingPolicy & a_policy,
+				unsigned an_indentation,
+				bool a_print_instantiation)
+{
+  DeclPrinter Printer(an_out, a_policy, an_indentation, a_print_instantiation);
+  Printer.Visit(const_cast<Decl*>(p_decl));
+}
 
 void DeclPrinter::PrintStmt(const Stmt* p_stmt,
 					raw_ostream & an_out,

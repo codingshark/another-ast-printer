@@ -14,31 +14,7 @@
 
 
 #include "StmtPrinter.h"
-
-/*
-//===----------------------------------------------------------------------===//
-// Stmt method implementations
-//===----------------------------------------------------------------------===//
-
-void Stmt::dumpPretty(const ASTContext &Context) const {
-  printPretty(llvm::errs(), nullptr, another_printer::PrintingPolicy(Context.getLangOpts()));
-}
-
-void Stmt::printPretty(raw_ostream &Out,
-                       PrinterHelper *Helper,
-                       const another_printer::PrintingPolicy &Policy,
-                       unsigned Indentation) const {
-  StmtPrinter P(Out, Helper, Policy, Indentation);
-  P.Visit(const_cast<Stmt*>(this));
-}
-
-//===----------------------------------------------------------------------===//
-// PrinterHelper
-//===----------------------------------------------------------------------===//
-
-// Implement virtual destructor.
-PrinterHelper::~PrinterHelper() {}
-*/
+#include "DeclPrinter.h"
 
 namespace another_printer{
 
@@ -72,7 +48,7 @@ void StmtPrinter::PrintRawDecl(Decl *D) {
 
 void StmtPrinter::PrintRawDeclStmt(const DeclStmt *S) {
   SmallVector<Decl*, 2> Decls(S->decls());
-  Decl::printGroup(Decls.data(), Decls.size(), Out, Policy, IndentLevel);
+  another_printer::DeclPrinter::printGroup(Decls.data(), Decls.size(), Out, Policy, IndentLevel);
 }
 
 void StmtPrinter::VisitNullStmt(NullStmt *Node) {

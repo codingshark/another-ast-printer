@@ -58,6 +58,16 @@ namespace another_printer
       : Out(Out), Policy(Policy), Indentation(Indentation),
         PrintInstantiation(PrintInstantiation) { }
 
+   static void printGroup(Decl** Begin, unsigned NumDecls,
+                          raw_ostream &Out, const PrintingPolicy &Policy,
+                          unsigned Indentation = 0);
+
+  static void PrintDecl(const Decl* p_decl,
+    				raw_ostream & an_out,
+    				const another_printer::PrintingPolicy & a_policy,
+				unsigned an_indentation,
+				bool PrintInstantiation = false);
+
     void VisitDeclContext(DeclContext *DC, bool Indent = true);
 
     void VisitTranslationUnitDecl(TranslationUnitDecl *D);
