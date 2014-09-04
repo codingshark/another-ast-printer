@@ -27,5 +27,5 @@ find the executable at
 clang-llvm/build/bin
 5.
 Usage:
-$another-ast-printer file.c --
+$another-ast-printer -d -t -s -o -e file.cpp --
 
