@@ -21,6 +21,7 @@ add the following line to clang-llvm/llvm/tools/clang/tools/extra/CMakeLists.txt
 add_subdirectory(another-ast-printer)
 3.
 run
+$cd clang-llvm/build
 $ninja another-ast-printer
 4.
 find the executable at
