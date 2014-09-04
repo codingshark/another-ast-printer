@@ -11,15 +11,14 @@
 #include "clang/AST/ExprCXX.h"
 #include "clang/AST/PrettyPrinter.h"
 #include "clang/Basic/Module.h"
-#include "llvm/Support/raw_ostream.h"
 
-#include "PrintingPolicy.h"
+#include "PrinterBase.h"
 
 using namespace clang;
 
 namespace another_printer
 {
-  class DeclPrinter : public DeclVisitor<DeclPrinter> {
+  class DeclPrinter : public DeclVisitor<DeclPrinter>, public PrinterBase {
     raw_ostream &Out;
     another_printer::PrintingPolicy Policy;
     unsigned Indentation;

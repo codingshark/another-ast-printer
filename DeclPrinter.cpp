@@ -292,7 +292,8 @@ void DeclPrinter::VisitTypeAliasDecl(TypeAliasDecl *D) {
   }
   Out << "using " << *D;
   prettyPrintAttributes(D);
-  Out << " = " << D->getTypeSourceInfo()->getType().getAsString(Policy);
+//  Out << " = " << D->getTypeSourceInfo()->getType().getAsString(Policy);
+  Out << " = " << QualTypeGetAsString(D->getTypeSourceInfo()->getType(), Policy);
   if(Policy.SuppressDeclTag == false)
   {
   	Out<<"</TypeAliasDecl>";
@@ -463,7 +464,8 @@ void DeclPrinter::VisitFunctionDecl(FunctionDecl *D) {
           if (I)
             Proto += ", ";
 
-          Proto += FT->getExceptionType(I).getAsString(SubPolicy);
+//          Proto += FT->getExceptionType(I).getAsString(SubPolicy);
+          Proto += QualTypeGetAsString(FT->getExceptionType(I), SubPolicy);
         }
       Proto += ")";
     } else if (FT && isNoexceptExceptionSpec(FT->getExceptionSpecType())) {
@@ -497,7 +499,8 @@ void DeclPrinter::VisitFunctionDecl(FunctionDecl *D) {
           FieldDecl *FD = BMInitializer->getAnyMember();
           Out << *FD;
         } else {
-          Out << QualType(BMInitializer->getBaseClass(), 0).getAsString(Policy);
+//          Out << QualType(BMInitializer->getBaseClass(), 0).getAsString(Policy);
+          Out << QualTypeGetAsString(QualType(BMInitializer->getBaseClass(), 0), Policy);
         }
         
         Out << "(";
@@ -601,7 +604,8 @@ void DeclPrinter::VisitFriendDecl(FriendDecl *D) {
     for (unsigned i = 0; i < NumTPLists; ++i)
       PrintTemplateParameters(D->getFriendTypeTemplateParameterList(i));
     Out << "friend ";
-    Out << " " << TSI->getType().getAsString(Policy);
+//    Out << " " << TSI->getType().getAsString(Policy);
+    Out << " " << QualTypeGetAsString(TSI->getType(), Policy);
   }
   else if (FunctionDecl *FD =
       dyn_cast<FunctionDecl>(D->getFriendDecl())) {
@@ -883,8 +887,8 @@ void DeclPrinter::VisitCXXRecordDecl(CXXRecordDecl *D) {
           Print(AS);
           Out << " ";
         }
-        Out << Base->getType().getAsString(Policy);
-
+//        Out << Base->getType().getAsString(Policy);
+	Out << QualTypeGetAsString(Base->getType(), Policy);
         if (Base->isPackExpansion())
           Out << "...";
       }
@@ -959,7 +963,8 @@ void DeclPrinter::PrintTemplateParameters(const TemplateParameterList *Params,
         Args->get(i).print(Policy, Out);
       } else if (TTP->hasDefaultArgument()) {
         Out << " = ";
-        Out << TTP->getDefaultArgument().getAsString(Policy);
+//        Out << TTP->getDefaultArgument().getAsString(Policy);
+        Out << QualTypeGetAsString(TTP->getDefaultArgument(), Policy);
       };
     } else if (const NonTypeTemplateParmDecl *NTTP =
                  dyn_cast<NonTypeTemplateParmDecl>(Param)) {
@@ -1070,18 +1075,18 @@ void DeclPrinter::VisitObjCMethodDecl(ObjCMethodDecl *OMD) {
   else
     Out << "+ ";
   if (!OMD->getReturnType().isNull())
-    Out << '(' << OMD->getASTContext()
-                      .getUnqualifiedObjCPointerType(OMD->getReturnType())
-                      .getAsString(Policy) << ")";
-
+  {
+//    Out << '(' << OMD->getASTContext().getUnqualifiedObjCPointerType(OMD->getReturnType()).getAsString(Policy) << ")";
+    Out << '(' << QualTypeGetAsString(OMD->getASTContext().getUnqualifiedObjCPointerType(OMD->getReturnType()), Policy) << ")";
+  }
   std::string name = OMD->getSelector().getAsString();
   std::string::size_type pos, lastPos = 0;
   for (const auto *PI : OMD->params()) {
     // FIXME: selector is missing here!
     pos = name.find_first_of(':', lastPos);
     Out << " " << name.substr(lastPos, pos - lastPos);
-    Out << ":(" << PI->getASTContext().getUnqualifiedObjCPointerType(PI->getType()).
-                      getAsString(Policy) << ')' << *PI;
+//    Out << ":(" << PI->getASTContext().getUnqualifiedObjCPointerType(PI->getType()).getAsString(Policy) << ')' << *PI;
+    Out << ":(" << QualTypeGetAsString(PI->getASTContext().getUnqualifiedObjCPointerType(PI->getType()), Policy) << ')' << *PI;
     lastPos = pos + 1;
   }
 
@@ -1124,8 +1129,8 @@ void DeclPrinter::VisitObjCImplementationDecl(ObjCImplementationDecl *OID) {
     Out << "{\n";
     Indentation += Policy.Indentation;
     for (const auto *I : OID->ivars()) {
-      Indent() << I->getASTContext().getUnqualifiedObjCPointerType(I->getType()).
-                    getAsString(Policy) << ' ' << *I << ";\n";
+//      Indent() << I->getASTContext().getUnqualifiedObjCPointerType(I->getType()).getAsString(Policy) << ' ' << *I << ";\n";
+	Indent() << QualTypeGetAsString(I->getASTContext().getUnqualifiedObjCPointerType(I->getType()), Policy) << ' ' << *I << ";\n";
     }
     Indentation -= Policy.Indentation;
     Out << "}\n";
@@ -1172,9 +1177,8 @@ void DeclPrinter::VisitObjCInterfaceDecl(ObjCInterfaceDecl *OID) {
     eolnOut = true;
     Indentation += Policy.Indentation;
     for (const auto *I : OID->ivars()) {
-      Indent() << I->getASTContext()
-                      .getUnqualifiedObjCPointerType(I->getType())
-                      .getAsString(Policy) << ' ' << *I << ";\n";
+//      Indent() << I->getASTContext().getUnqualifiedObjCPointerType(I->getType()).getAsString(Policy) << ' ' << *I << ";\n";
+	Indent() << QualTypeGetAsString(I->getASTContext().getUnqualifiedObjCPointerType(I->getType()), Policy) << ' ' << *I << ";\n";
     }
     Indentation -= Policy.Indentation;
     Out << "}\n";
@@ -1254,8 +1258,10 @@ void DeclPrinter::VisitObjCCategoryDecl(ObjCCategoryDecl *PID) {
     Out << "{\n";
     Indentation += Policy.Indentation;
     for (const auto *I : PID->ivars())
-      Indent() << I->getASTContext().getUnqualifiedObjCPointerType(I->getType()).
-                    getAsString(Policy) << ' ' << *I << ";\n";
+    {
+//      Indent() << I->getASTContext().getUnqualifiedObjCPointerType(I->getType()).getAsString(Policy) << ' ' << *I << ";\n";
+      Indent() << QualTypeGetAsString(I->getASTContext().getUnqualifiedObjCPointerType(I->getType()), Policy) << ' ' << *I << ";\n";
+    }
     Indentation -= Policy.Indentation;
     Out << "}\n";
   }
@@ -1360,8 +1366,8 @@ void DeclPrinter::VisitObjCPropertyDecl(ObjCPropertyDecl *PDecl) {
     (void) first; // Silence dead store warning due to idiomatic code.
     Out << " )";
   }
-  Out << ' ' << PDecl->getASTContext().getUnqualifiedObjCPointerType(PDecl->getType()).
-                  getAsString(Policy) << ' ' << *PDecl;
+//  Out << ' ' << PDecl->getASTContext().getUnqualifiedObjCPointerType(PDecl->getType()).getAsString(Policy) << ' ' << *PDecl;
+  Out << ' ' << QualTypeGetAsString(PDecl->getASTContext().getUnqualifiedObjCPointerType(PDecl->getType()), Policy) << ' ' << *PDecl;
   if (Policy.PolishForDeclaration)
     Out << ';';
   if(Policy.SuppressDeclTag == false)

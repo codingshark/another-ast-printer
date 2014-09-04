@@ -4,7 +4,7 @@ set(LLVM_LINK_COMPONENTS
   )
 
 add_clang_executable(another-ast-printer
-  AnotherAstPrinter.cpp
+  AnotherASTPrinter.cpp
   DeclPrinter.cpp
   DeclPrinter.h
   StmtPrinter.cpp
@@ -12,6 +12,8 @@ add_clang_executable(another-ast-printer
   TypePrinter.cpp
   TypePrinter.h
   PrintingPolicy.h
+  PrinterBase.h
+  PrinterBase.cpp
   )
 
 target_link_libraries(another-ast-printer

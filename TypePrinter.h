@@ -7,15 +7,12 @@
 #include "clang/AST/DeclObjC.h"
 #include "clang/AST/DeclTemplate.h"
 #include "clang/AST/Expr.h"
-#include "clang/AST/Type.h"
 #include "clang/Basic/LangOptions.h"
 #include "clang/Basic/SourceManager.h"
-#include "llvm/ADT/SmallString.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/Support/SaveAndRestore.h"
-#include "llvm/Support/raw_ostream.h"
 
-#include "PrintingPolicy.h"
+#include "PrinterBase.h"
 
 using namespace clang;
 
@@ -72,7 +69,8 @@ namespace another_printer{
     }
   };
   
-  class TypePrinter {
+  class TypePrinter: public PrinterBase
+  {
     another_printer::PrintingPolicy Policy;
     bool HasEmptyPlaceHolder;
     bool InsideCCAttribute;
