@@ -79,9 +79,43 @@ namespace another_printer{
     explicit TypePrinter(const another_printer::PrintingPolicy &Policy)
       : Policy(Policy), HasEmptyPlaceHolder(false), InsideCCAttribute(false) { }
 
+    void printNestedNameSpecifier(NestedNameSpecifier * T, raw_ostream &OS,  const another_printer::PrintingPolicy & a_policy) const;
+    void printTemplateName(const TemplateName & T, raw_ostream &OS, const another_printer::PrintingPolicy &Policy, bool SuppressNNS=false) const;
+    void PrintTemplateArgumentList(raw_ostream &OS,
+                          const TemplateArgumentLoc *Args, unsigned NumArgs,
+                          const another_printer::PrintingPolicy &Policy) const;
+    void PrintTemplateArgumentList(raw_ostream &OS,
+                            const TemplateArgumentListInfo &Args,
+                            const another_printer::PrintingPolicy &Policy) const;
+    void PrintTemplateArgumentList( raw_ostream &OS,
+                                                const TemplateArgument *Args,
+                                                unsigned NumArgs, const another_printer::PrintingPolicy &Policy,
+                                                bool SkipBrackets = false ) const;
+                                               
+    void printTemplateArgument(const TemplateArgument & T, const another_printer::PrintingPolicy &Policy,  raw_ostream &Out) const;
+    
+    void printQualifiers(const Qualifiers & T, raw_ostream &OS, const another_printer::PrintingPolicy& Policy, bool appendSpaceIfNonEmpty = false) const;
+    void printExceptionSpecification(const FunctionProtoType * T, raw_ostream &OS,  const PrintingPolicy &Policy) const;
+                                               
     void print(const Type *ty, Qualifiers qs, raw_ostream &OS,
                StringRef PlaceHolder);
-    void print(QualType T, raw_ostream &OS, StringRef PlaceHolder);
+
+    static void print(const Type *ty, Qualifiers qs,
+                      raw_ostream &OS, const PrintingPolicy &policy,
+                      const Twine &PlaceHolder);
+
+    void printSplitQualType(SplitQualType split, raw_ostream &OS,
+                     const another_printer::PrintingPolicy &policy, const Twine &PlaceHolder) const
+    {
+       return print(split.Ty, split.Quals, OS, policy, PlaceHolder);
+    }
+    
+                      
+    void printQualType(const QualType & T, raw_ostream &OS, StringRef PlaceHolder);
+    void printQualType (const QualType & T, raw_ostream &OS, const another_printer::PrintingPolicy &Policy, const Twine &PlaceHolder=Twine()) const
+    {
+         printSplitQualType(T.split(), OS, Policy, PlaceHolder);
+    }
 
     static bool canPrefixQualifiers(const Type *T, bool &NeedARCStrongQualifier);
     void spaceBeforePlaceHolder(raw_ostream &OS);

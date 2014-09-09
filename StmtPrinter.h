@@ -32,11 +32,11 @@ namespace another_printer{
                 unsigned Indentation = 0)
       : Out(os), IndentLevel(Indentation), Helper(helper), Policy(Policy) {}
 
-    void PrintStmt(const Stmt* p_stmt,
+    static void PrintStmt(const Stmt* p_stmt,
     				raw_ostream & an_out,
     				PrinterHelper * p_helper,
     				const another_printer::PrintingPolicy & a_policy,
-				unsigned an_indentation);
+				unsigned an_indentation = 0);
     
     void PrintStmt(Stmt *S) {
       PrintStmt(S, Policy.Indentation);
